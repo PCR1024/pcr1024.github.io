@@ -4,8 +4,8 @@ plugins:
   - jekyll-regex-replace
 
 # SEO相关信息
-title: PCR1024 Blog
-description: PCR1024 Blog
+title: Blog
+description: Blog
 keywords: ''
 author: PCR1024
 footerText: ''

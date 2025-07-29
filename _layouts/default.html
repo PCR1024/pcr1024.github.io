@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  {% include head.html %}
+</head>
+<body class="site">
+  <div class="site-container">
+    <header class="site-header">
+      {% include header.html %}
+    </header>
+
+    <main class="site-main">
+      <div class="container">
+        {{ content }}
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      {% include footer.html %}
+    </footer>
+  </div>
+
+  <!-- 主题脚本 -->
+  <script type="module" src="{{ '/assets/js/main.js' | relative_url }}"></script>
+</body>
+</html>

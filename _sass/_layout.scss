@@ -1,0 +1,233 @@
+// 网站容器
+.site {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.site-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+// 导航栏
+.site-nav {
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 1rem 0;
+  box-shadow: var(--shadow-sm);
+
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-brand {
+    .site-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      transition: var(--transition);
+      
+      &:hover {
+        color: var(--color-primary-light);
+      }
+    }
+    
+    .site-logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      margin: 0;
+      display: inline-block;
+    }
+  }
+
+  .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+    margin: 0;
+
+    a {
+      color: var(--color-text);
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+      
+      &:hover,
+      &.active {
+        color: var(--color-primary);
+        background: var(--color-bg-secondary);
+      }
+    }
+  }
+
+  .nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--color-text);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    
+    &:hover {
+      background: var(--color-bg-secondary);
+    }
+  }
+
+  .hamburger {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: currentColor;
+    position: relative;
+    transition: var(--transition);
+    
+    &::before,
+    &::after {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 2px;
+      background-color: currentColor;
+      position: absolute;
+      left: 0;
+      transition: var(--transition);
+    }
+    
+    &::before { top: -6px; }
+    &::after { bottom: -6px; }
+  }
+}
+
+// 主要内容区
+.site-main {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+// 页脚
+.site-footer {
+  background: #f8f9fa;
+  color: var(--color-text);
+  padding: 3rem 0 2rem;
+  margin-top: 4rem;
+  border-top: 1px solid var(--color-border);
+
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .footer-nav {
+    display: flex;
+    gap: 1.5rem;
+
+    a {
+      color: var(--color-text-light);
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: var(--border-radius);
+      transition: var(--transition);
+      
+      &:hover {
+        color: var(--color-primary);
+        background: var(--color-bg-secondary);
+      }
+    }
+  }
+
+  .copyright {
+    color: var(--color-text-light);
+    margin: 0;
+    font-weight: 500;
+
+    .separator {
+      margin: 0 0.5rem;
+      opacity: 0.5;
+    }
+    
+    a {
+      color: var(--color-primary);
+      
+      &:hover {
+        color: var(--color-primary-light);
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .site-nav {
+    .nav-brand {
+      .site-title {
+        font-size: 1.25rem;
+      }
+      
+      .site-logo {
+        width: 28px;
+        height: 28px;
+      }
+    }
+    
+    .nav-toggle {
+      display: block;
+    }
+
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: var(--color-bg);
+      padding: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      &.active {
+        display: flex;
+      }
+    }
+
+    .nav-links {
+      flex-direction: column;
+      width: 100%;
+    }
+  }
+
+  .site-footer {
+    .footer-content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .footer-nav {
+      justify-content: center;
+    }
+  }
+}

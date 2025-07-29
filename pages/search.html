@@ -1,0 +1,330 @@
+---
+layout: default
+title: 搜索
+permalink: /search/
+---
+
+<div class="search-container">
+  <div class="search-header">
+    <h1>文章搜索</h1>
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="搜索文章标题、内容..." autocomplete="off">
+      <button id="search-button" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="search-stats" id="search-stats" style="display: none;">
+    <span id="search-results-count">0</span> 条结果，用时 <span id="search-time">0</span> 毫秒
+  </div>
+
+  <div class="search-results" id="search-results">
+    <div class="search-placeholder">
+      <div class="search-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+      </div>
+      <p>输入关键词开始搜索</p>
+    </div>
+  </div>
+
+  <div class="search-no-results" id="search-no-results" style="display: none;">
+    <div class="no-results-icon">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+      </svg>
+    </div>
+    <p>没有找到相关内容</p>
+    <p class="no-results-tips">试试更换关键词或缩短搜索词</p>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-input');
+  const searchButton = document.getElementById('search-button');
+  const searchResults = document.getElementById('search-results');
+  const searchStats = document.getElementById('search-stats');
+  const searchNoResults = document.getElementById('search-no-results');
+  const searchResultsCount = document.getElementById('search-results-count');
+  const searchTime = document.getElementById('search-time');
+  
+  let searchData = null;
+  let searchTimeout = null;
+
+  // 加载搜索数据
+  fetch('{{ "/search.json" | relative_url }}')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      searchData = data;
+      console.log('Jekyll搜索数据加载成功:', data);
+    })
+    .catch(error => {
+      console.error('Jekyll搜索数据加载失败，尝试使用静态数据:', error);
+      // 加载静态搜索数据作为回退
+      loadStaticSearchData();
+    });
+
+  // 加载静态搜索数据
+  function loadStaticSearchData() {
+    const script = document.createElement('script');
+    script.src = '{{ "/assets/search-data.js" | relative_url }}';
+    script.onload = function() {
+      if (window.searchData) {
+        searchData = window.searchData;
+        console.log('静态搜索数据加载成功:', searchData);
+      } else {
+        showError('静态搜索数据不可用');
+      }
+    };
+    script.onerror = function() {
+      showError('无法加载搜索数据');
+    };
+    document.head.appendChild(script);
+  }
+
+  // 显示错误
+  function showError(message) {
+    const searchResults = document.getElementById('search-results');
+    if (searchResults) {
+      searchResults.innerHTML = `
+        <div class="search-error">
+          <p>搜索功能暂时不可用</p>
+          <p class="error-details">${message}</p>
+        </div>
+      `;
+    }
+  }
+
+  // 搜索函数
+  function performSearch(query) {
+    if (!searchData || !query.trim()) {
+      showPlaceholder();
+      return;
+    }
+
+    const startTime = performance.now();
+    const results = [];
+    const queryLower = query.toLowerCase();
+    const queryWords = queryLower.split(/\s+/).filter(word => word.length > 0);
+
+    // 搜索文章
+    searchData.posts.forEach(post => {
+      const score = calculateScore(post, queryWords);
+      if (score > 0) {
+        results.push({
+          ...post,
+          score: score,
+          type: 'post'
+        });
+      }
+    });
+
+    // 按分数排序
+    results.sort((a, b) => b.score - a.score);
+
+    const endTime = performance.now();
+    const searchTimeMs = Math.round(endTime - startTime);
+
+    displayResults(results, query, searchTimeMs);
+  }
+
+  // 计算搜索分数
+  function calculateScore(item, queryWords) {
+    const title = (item.title || '').toLowerCase();
+    const content = (item.content || '').toLowerCase();
+    const excerpt = (item.excerpt || '').toLowerCase();
+    let score = 0;
+
+    queryWords.forEach(word => {
+      // 标题匹配权重最高
+      if (title.includes(word)) {
+        score += title === word ? 100 : 50;
+      }
+      
+      // 摘要匹配
+      if (excerpt.includes(word)) {
+        score += 20;
+      }
+      
+      // 内容匹配
+      if (content.includes(word)) {
+        score += 10;
+      }
+      
+      // 分类和标签匹配
+      if (item.categories && item.categories.some(cat => cat.toLowerCase().includes(word))) {
+        score += 30;
+      }
+      
+      if (item.tags && item.tags.some(tag => tag.toLowerCase().includes(word))) {
+        score += 25;
+      }
+    });
+
+    return score;
+  }
+
+  // 显示搜索结果
+  function displayResults(results, query, searchTimeMs) {
+    if (results.length === 0) {
+      showNoResults();
+      return;
+    }
+
+    searchStats.style.display = 'block';
+    searchNoResults.style.display = 'none';
+    searchResultsCount.textContent = results.length;
+    searchTime.textContent = searchTimeMs;
+
+    const resultsHtml = results.map(result => {
+      const excerpt = getExcerpt(result, query);
+      
+      // 动态生成分类标签
+      let typeLabel = '页面';
+      if (result.type === 'post') {
+        if (result.categories && result.categories.length > 0) {
+          // 如果有多个分类，显示第一个主要分类
+          typeLabel = result.categories[0];
+        } else {
+          typeLabel = '文章';
+        }
+      }
+      
+      const dateHtml = result.date ? `<span class="search-result-date">${result.date}</span>` : '';
+      
+      return `
+        <div class="search-result-item">
+          <div class="search-result-header">
+            <h3 class="search-result-title">
+              <a href="${result.url}">${highlightText(result.title, query)}</a>
+            </h3>
+            <span class="search-result-type">${typeLabel}</span>
+          </div>
+          <div class="search-result-meta">
+            ${dateHtml}
+          </div>
+          <div class="search-result-excerpt">
+            ${excerpt}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    searchResults.innerHTML = resultsHtml;
+  }
+
+  // 获取摘要
+  function getExcerpt(item, query) {
+    const content = item.excerpt || item.content || '';
+    const queryLower = query.toLowerCase();
+    const contentLower = content.toLowerCase();
+    
+    const index = contentLower.indexOf(queryLower);
+    if (index !== -1) {
+      const start = Math.max(0, index - 50);
+      const end = Math.min(content.length, index + query.length + 100);
+      let excerpt = content.substring(start, end);
+      
+      if (start > 0) excerpt = '...' + excerpt;
+      if (end < content.length) excerpt = excerpt + '...';
+      
+      return highlightText(excerpt, query);
+    }
+    
+    return highlightText(content.substring(0, 150) + (content.length > 150 ? '...' : ''), query);
+  }
+
+  // 高亮搜索词
+  function highlightText(text, query) {
+    if (!query) return text;
+    
+    const queryWords = query.split(/\s+/).filter(word => word.length > 0);
+    let highlightedText = text;
+    
+    queryWords.forEach(word => {
+      const regex = new RegExp(`(${escapeRegExp(word)})`, 'gi');
+      highlightedText = highlightedText.replace(regex, '<mark>$1</mark>');
+    });
+    
+    return highlightedText;
+  }
+
+  // 转义正则表达式特殊字符
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  // 显示占位符
+  function showPlaceholder() {
+    searchStats.style.display = 'none';
+    searchNoResults.style.display = 'none';
+    searchResults.innerHTML = `
+      <div class="search-placeholder">
+        <div class="search-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </div>
+        <p>输入关键词开始搜索</p>
+      </div>
+    `;
+  }
+
+  // 显示无结果
+  function showNoResults() {
+    searchStats.style.display = 'none';
+    searchNoResults.style.display = 'block';
+    searchResults.innerHTML = '';
+  }
+
+  // 事件监听
+  searchInput.addEventListener('input', function() {
+    const query = this.value.trim();
+    
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      performSearch(query);
+    }, 300);
+  });
+
+  searchButton.addEventListener('click', function() {
+    performSearch(searchInput.value.trim());
+  });
+
+  searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      performSearch(this.value.trim());
+    }
+  });
+
+  // URL参数搜索
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryParam = urlParams.get('q');
+  if (queryParam) {
+    searchInput.value = queryParam;
+    // 等待搜索数据加载完成后执行搜索
+    const waitForData = setInterval(() => {
+      if (searchData) {
+        clearInterval(waitForData);
+        performSearch(queryParam);
+      }
+    }, 100);
+  }
+});
+</script>

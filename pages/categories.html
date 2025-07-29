@@ -1,0 +1,29 @@
+---
+layout: page
+title: 分类
+permalink: /categories/
+---
+
+<div class="categories-page">
+  {% assign posts_by_category = site.posts | group_by: "category" | sort: "name" %}
+  {% for category in posts_by_category %}
+    {% assign category_name = category.name %}
+    {% assign category_id = category_name | url_encode %}
+    <section class="category-section" id="{{ category_name }}">
+      <h2 class="category-title">
+        <a href="{{ 'categories/#' | append: category.name | relative_url }}" class="category-link">
+          {{ category_name }}
+        </a>
+      </h2>
+      
+      <ul class="post-list">
+        {% for post in category.items %}
+          <li class="post-item">
+            <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
+            <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endfor %}
+</div>

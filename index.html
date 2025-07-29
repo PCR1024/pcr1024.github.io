@@ -1,0 +1,32 @@
+---
+layout: default
+---
+
+<div class="search-section">
+  {% include search-widget.html %}
+</div>
+
+<div class="post-list">
+  {% for post in site.posts %}
+    <article class="post-item">
+      <h2 class="post-title">
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </h2>
+      <div class="post-meta">
+        <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y-%m-%d" }}</time>
+      </div>
+      {% if post.description %}
+        <div class="post-excerpt">
+          {{ post.description }}
+        </div>
+      {% else %}
+        <div class="post-excerpt">
+          {{ post.content | strip_html | truncatewords: 30 }}
+        </div>
+      {% endif %}
+      <div class="post-actions">
+        <a href="{{ post.url | relative_url }}" class="read-more">阅读全文 →</a>
+      </div>
+    </article>
+  {% endfor %}
+</div>

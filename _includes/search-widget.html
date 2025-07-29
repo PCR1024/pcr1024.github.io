@@ -1,0 +1,74 @@
+<div class="search-widget">
+  <form class="search-form" action="{{ '/search' | relative_url }}" method="get">
+    <div class="search-input-group">
+      <input 
+        type="text" 
+        name="q" 
+        id="search-widget-input" 
+        placeholder="搜索文章..." 
+        autocomplete="off"
+        value="{{ page.query | default: '' }}"
+      >
+      <button type="submit" class="search-submit-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+      </button>
+    </div>
+  </form>
+</div>
+
+<style>
+.search-widget {
+  margin: 1rem 0;
+}
+
+.search-form {
+  width: 100%;
+}
+
+.search-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#search-widget-input {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: var(--transition);
+}
+
+#search-widget-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+}
+
+#search-widget-input::placeholder {
+  color: var(--color-text-light);
+}
+
+.search-submit-btn {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  color: var(--color-text-light);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+.search-submit-btn:hover {
+  color: var(--color-primary);
+  background: var(--color-bg-secondary);
+}
+</style>

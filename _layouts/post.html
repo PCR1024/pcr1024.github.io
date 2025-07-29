@@ -1,0 +1,209 @@
+---
+layout: default
+---
+
+<article class="post">
+  <header class="post-header">
+    <div class="container">
+      <h1 class="post-title">{{ page.title }}</h1>
+      
+      <div class="post-meta">
+        <time datetime="{{ page.date | date_to_xmlschema }}">
+          {{ page.date | date: "%Y年%m月%d日" }}
+        </time>
+        
+        {% if page.category %}
+        <span class="separator">|</span>
+        <a href="{{ 'categories/#' | append: page.category | relative_url }}" class="category-tag">
+          {{ page.category }}
+        </a>
+        {% endif %}
+        
+        {% if page.tags.size > 0 %}
+        <span class="separator">|</span>
+        <span class="tags">
+          {% for tag in page.tags %}
+          <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </span>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="post-grid">
+      <div class="post-content">
+        {{ content }}
+      </div>
+
+      <aside class="post-sidebar">
+        <div class="toc">
+          <!-- 目录将由JavaScript自动生成 -->
+        </div>
+      </aside>
+    </div>
+
+    <footer class="post-footer">
+      <div class="post-navigation">
+        {% if page.previous.url %}
+        <a class="prev" href="{{ page.previous.url | relative_url }}">
+          <span class="nav-label">上一篇</span>
+          <span class="post-title">{{ page.previous.title }}</span>
+        </a>
+        {% endif %}
+
+        {% if page.next.url %}
+        <a class="next" href="{{ page.next.url | relative_url }}">
+          <span class="nav-label">下一篇</span>
+          <span class="post-title">{{ page.next.title }}</span>
+        </a>
+        {% endif %}
+      </div>
+
+      {% if site.related_posts.size > 0 %}
+      <div class="related-posts">
+        <h3>相关文章</h3>
+        <ul>
+          {% for post in site.related_posts limit:3 %}
+          <li>
+            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y年%m月%d日" }}</time>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </footer>
+  </div>
+</article>
+
+<style>
+  /* 文章特定样式 */
+  .post-header {
+    padding: 3rem 0;
+    background-color: var(--color-bg-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .post-title {
+    margin: 0 0 1rem;
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
+
+  .post-meta {
+    color: var(--color-text-light);
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .post-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .post-sidebar {
+    position: sticky;
+    top: 6rem;
+  }
+
+  .post-navigation {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 3rem 0;
+    
+    a {
+      padding: 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        border-color: var(--color-primary);
+        background-color: var(--color-bg-secondary);
+      }
+      
+      &.next {
+        text-align: right;
+      }
+    }
+    
+    .nav-label {
+      display: block;
+      color: var(--color-text-light);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .post-title {
+      font-size: 1rem;
+      margin: 0;
+      color: var(--color-text);
+    }
+  }
+
+  .related-posts {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+    
+    h3 {
+      margin-top: 0;
+    }
+    
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    li {
+      margin-bottom: 1rem;
+      
+      time {
+        display: block;
+        color: var(--color-text-light);
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .post-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .post-navigation {
+      grid-template-columns: 1fr;
+      
+      a.next {
+        text-align: left;
+      }
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 为所有代码块添加行号
+    document.querySelectorAll('pre').forEach(function(pre) {
+      pre.classList.add('line-numbers');
+      
+      // 获取代码块的语言
+      const code = pre.querySelector('code');
+      if (code) {
+        const className = Array.from(code.classList)
+          .find(cls => cls.startsWith('language-'));
+        if (className) {
+          const language = className.replace('language-', '');
+          pre.setAttribute('data-language', language);
+        }
+      }
+    });
+  });
+</script>

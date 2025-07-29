@@ -1,0 +1,52 @@
+# 站点设置
+title: ModernMD
+description: 一个现代化的Jekyll主题，支持Markdown、分类和搜索
+baseurl: ""
+url: ""
+
+# 主题设置
+author: Your Name
+email: your-email@example.com
+
+# 构建设置
+markdown: kramdown
+kramdown:
+  input: GFM
+permalink: /:year/:month/:day/:title/
+paginate: 10
+paginate_path: "/page/:num/"
+
+# 集合
+collections:
+  categories:
+    output: true
+    permalink: /categories/:path/
+
+# 默认设置
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      comments: true
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "page"
+
+# 插件
+plugins:
+  - jekyll-paginate
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# 排除文件
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - README.md
